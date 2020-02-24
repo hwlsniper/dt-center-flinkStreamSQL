@@ -30,7 +30,6 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
-import org.apache.flink.streaming.api.operators.async.queue.StreamRecordQueueEntry;
 import org.apache.flink.table.typeutils.TimeIndicatorTypeInfo;
 import org.apache.flink.types.Row;
 import org.slf4j.Logger;
@@ -67,15 +66,17 @@ public abstract class AsyncReqRow extends RichAsyncFunction<Row, Row> implements
         this.sideInfo = sideInfo;
     }
 
-    @Override
-    public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
-        if(timeOutNum % TIMEOUT_LOG_FLUSH_NUM == 0){
-            LOG.warn("Async function call has timed out, since timeoutNum:{}. current: input:{}", timeOutNum, input.toString());
-        }
-
-        timeOutNum++;
-        resultFuture.complete(null);
-    }
+//    @Override
+//    public void timeout(Row input, ResultFuture<Row> resultFuture) throws Exception {
+//        StreamRecordQueueEntry<Row> future = (StreamRecordQueueEntry<Row>)resultFuture;
+//        try {
+//            if (null == future.get()) {
+//                resultFuture.completeExceptionally(new TimeoutException("Async function call has timed out."));
+//            }
+//        } catch (Exception e) {
+//            resultFuture.completeExceptionally(new Exception(e));
+//        }
+//    }
 
     private void initMetric() {
         parseErrorRecords = getRuntimeContext().getMetricGroup().counter(MetricConstant.DT_NUM_SIDE_PARSE_ERROR_RECORDS);
